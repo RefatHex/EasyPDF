@@ -8,6 +8,7 @@ openai = "*"
 pypdf = "*"
 pdfkit = "*"
 fpdf2 = "*"
+python-unsplash = "*"
 
 [dev-packages]
 autopep8 = "*"

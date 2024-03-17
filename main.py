@@ -2,8 +2,8 @@ import json
 import time
 from keys import OpenAI_API
 from openai import OpenAI
-from pdfkit import writer
-import pypdf
+from fpdf import FPDF
+
 
 client = OpenAI(api_key=OpenAI_API)
 
@@ -29,16 +29,41 @@ def content_generator(text: str):
     return response.choices[0].message.content
 
 
+def writer(dictionary_data, name):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('helvetica', size=12)
+
+    for title, text in dictionary_data.items():
+        # Title
+        title_width = pdf.get_string_width(title)
+        page_width = pdf.w
+        title_x_pos = ((page_width - title_width) / 4) + title_width
+        text = content_generator(get_pdf_content_prompt()+text)
+        pdf.set_font('helvetica', size=30)
+        pdf.text(title_x_pos, 20, title)
+
+        # Draw a straight line under the title
+        pdf.line(10, 28, page_width - 10, 28)
+
+        # Text
+        pdf.set_font('helvetica', size=12)
+        y_pos = pdf.get_y() + 20
+        pdf.set_y(y_pos)
+        pdf.multi_cell(0, 10, text=text, border=0, align='L')
+        pdf.add_page()
+        print("added ")
+        time.sleep(1)
+
+    pdf.output(name + ".pdf")
+
+
 def pdf_generator(text: str):
     Table_of_Contents = content_generator(
-        get_table_of_content_prompt()+text)
+        get_table_of_content_prompt() + text)
     dictionary_data = json.loads(Table_of_Contents)
-
-    for key, value in dictionary_data.items():
-        content = content_generator(get_pdf_content_prompt()+value)
-        print(f'Updating pdf. {key}')
-        writer(content, text)
-        time.sleep(1)
+    replaced_text = text.replace(" ", "_")
+    writer(dictionary_data, replaced_text)
 
 
 pdf_generator("Life of an Engineer")
