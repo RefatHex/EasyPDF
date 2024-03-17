@@ -1,5 +1,6 @@
 import json
 import time
+from image_generator import get_image
 from keys import OpenAI_API
 from openai import OpenAI
 from fpdf import FPDF
@@ -16,7 +17,7 @@ def get_table_of_content_prompt() -> str:
 
 
 def get_pdf_content_prompt() -> str:
-    return 'Write a broad descriptive yet using easy and understandable about this topic -> '
+    return 'Write a broad descriptive paragraph using easy and understandable about this topic '
 
 
 def content_generator(text: str):
@@ -39,7 +40,6 @@ def writer(dictionary_data, name):
         title_width = pdf.get_string_width(title)
         page_width = pdf.w
         title_x_pos = ((page_width - title_width) / 4) + title_width
-        text = content_generator(get_pdf_content_prompt()+text)
         pdf.set_font('helvetica', size=30)
         pdf.text(title_x_pos, 20, title)
 
@@ -50,10 +50,23 @@ def writer(dictionary_data, name):
         pdf.set_font('helvetica', size=12)
         y_pos = pdf.get_y() + 20
         pdf.set_y(y_pos)
+        text = content_generator(get_pdf_content_prompt()+text)
         pdf.multi_cell(0, 10, text=text, border=0, align='L')
-        pdf.add_page()
-        print("added ")
-        time.sleep(1)
+
+        # Calculate remaining page size
+        remaining_height = pdf.h - pdf.get_y() - 10
+
+        image = get_image(name.replace("_", " "))
+        if image:
+            # Add image to PDF
+            pdf.image('x.jpg', x=10, y=pdf.get_y() + 10, w=pdf.w - 20)
+
+            # Move to the next page if necessary
+            if pdf.get_y() > pdf.h - 20:
+                pdf.add_page()
+
+            # Delay for a moment to ensure proper image placement
+            time.sleep(1)
 
     pdf.output(name + ".pdf")
 
