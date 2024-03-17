@@ -2,6 +2,7 @@ import json
 import time
 from keys import OpenAI_API
 from openai import OpenAI
+from pdfkit import writer
 import pypdf
 
 client = OpenAI(api_key=OpenAI_API)
@@ -26,12 +27,6 @@ def content_generator(text: str):
         ]
     )
     return response.choices[0].message.content
-
-
-def writer(text: str, name: str):
-    with open(name+'.pdf') as pdf:
-        writer = pypdf.PdfWriter()
-        writer.add_attachment(name+'.pdf', text)
 
 
 def pdf_generator(text: str):

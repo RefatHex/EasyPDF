@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 openai = "*"
 pypdf = "*"
+pdfkit = "*"
+fpdf2 = "*"
 
 [dev-packages]
 autopep8 = "*"
