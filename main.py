@@ -17,7 +17,7 @@ def get_table_of_content_prompt() -> str:
 
 
 def get_pdf_content_prompt() -> str:
-    return 'Write a broad descriptive paragraph using easy and understandable about this topic '
+    return 'Write a broad descriptive paragraph using easy and understandable about this topic withing 100 words'
 
 
 def content_generator(text: str):
@@ -35,7 +35,7 @@ def writer(dictionary_data, name):
     pdf.add_page()
     pdf.set_font('helvetica', size=12)
 
-    for title, text in dictionary_data.items():
+    for title, topic in dictionary_data.items():
         # Title
         title_width = pdf.get_string_width(title)
         page_width = pdf.w
@@ -50,23 +50,23 @@ def writer(dictionary_data, name):
         pdf.set_font('helvetica', size=12)
         y_pos = pdf.get_y() + 20
         pdf.set_y(y_pos)
-        text = content_generator(get_pdf_content_prompt()+text)
-        pdf.multi_cell(0, 10, text=text, border=0, align='L')
+
+        content = content_generator(get_pdf_content_prompt() + topic)
+        pdf.set_font('helvetica', size=12)
+        pdf.multi_cell(0, 10, text=content, border=0, align='L')
 
         # Calculate remaining page size
         remaining_height = pdf.h - pdf.get_y() - 10
 
         image = get_image(name.replace("_", " "))
+
+        # Add image to PDF
         if image:
-            # Add image to PDF
-            pdf.image('x.jpg', x=10, y=pdf.get_y() + 10, w=pdf.w - 20)
+            pdf.image(image, x=10, y=pdf.get_y()+10, w=pdf.w - 20)
 
-            # Move to the next page if necessary
-            if pdf.get_y() > pdf.h - 20:
-                pdf.add_page()
-
-            # Delay for a moment to ensure proper image placement
-            time.sleep(1)
+        pdf.add_page()
+        print("added ")
+        time.sleep(1)
 
     pdf.output(name + ".pdf")
 
@@ -76,6 +76,7 @@ def pdf_generator(text: str):
         get_table_of_content_prompt() + text)
     dictionary_data = json.loads(Table_of_Contents)
     replaced_text = text.replace(" ", "_")
+
     writer(dictionary_data, replaced_text)
 
 
